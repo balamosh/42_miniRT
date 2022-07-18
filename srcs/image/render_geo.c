@@ -6,7 +6,7 @@
 /*   By: sotherys <sotherys@student.21-school.ru>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/16 10:41:04 by sotherys          #+#    #+#             */
-/*   Updated: 2022/07/18 09:02:54 by sotherys         ###   ########.fr       */
+/*   Updated: 2022/07/18 21:15:56 by sotherys         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,8 @@ void	ft_render_geo(t_image *img, t_geometry *geo, t_camera *cam)
 	void	*object;
 
 	(void)geo;
+	cam->pos = (t_vector3){-5, 0, 0};
+	cam->dir = (t_vector3){1, 0, 0};
 	gx = tan(cam->fov / 2);
 	gy = gx * (cam->res.height - 1) / (cam->res.width - 1);
 	bn = ft_vector3_cross(cam->up, cam->dir);
