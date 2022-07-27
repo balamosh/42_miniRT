@@ -6,7 +6,7 @@
 /*   By: sotherys <sotherys@student.21-school.ru>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/16 10:41:04 by sotherys          #+#    #+#             */
-/*   Updated: 2022/07/27 15:17:27 by sotherys         ###   ########.fr       */
+/*   Updated: 2022/07/27 15:37:28 by sotherys         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,14 +81,12 @@ int	calc_color(t_camera *cam, t_object *obj, t_light *light)
 	return (color);
 }
 
-void	ft_render_geo(t_image *img, t_object *obj, t_light *_light, t_camera *cam)
+void	ft_render_geo(t_image *img, t_object *obj, t_light *light, t_camera *cam)
 {
 	int	i;
 	int	j;
 	double	gx, gy, transmission;
-	double	ks, kd, alpha;
-	t_vector3	ip, is, id, l, n, r, v;
-	t_vector3	bn, qx, qy, p1m, light, phit, nhit;
+	t_vector3	bn, qx, qy, p1m;
 	t_ray	primray;
 	t_pixel	pix;
 	void	*object;
@@ -99,14 +97,6 @@ void	ft_render_geo(t_image *img, t_object *obj, t_light *_light, t_camera *cam)
 	qx = ft_vector3_scale(2 * gx / (cam->res.width - 1), bn);
 	qy = ft_vector3_scale(2 * gy / (cam->res.height - 1), cam->up);
 	p1m = ft_vector3_sum3(cam->dir, ft_vector3_scale(-gx, bn), ft_vector3_scale(-gy, cam->up));
-	//light = (t_vector3) {10, 5, 3};
-	light = (t_vector3) {3, 0, 0};
-	object = NULL;
-	ks = 1;
-	kd = 1;
-	alpha = 1;
-	is = (t_vector3) {1, 1, 1};
-	id = (t_vector3) {0, 1, 0};
 	i = 0;
 	while (i < cam->res.width)
 	{
@@ -122,25 +112,10 @@ void	ft_render_geo(t_image *img, t_object *obj, t_light *_light, t_camera *cam)
 			if (object != NULL)
 			{
 				transmission = 1;
-				l = ft_vector3_normalize(ft_vector3_diff(light, phit));
-				n = nhit;
-				r = ft_vector3_diff(ft_vector3_scale(2 * ft_vector3_dot(l, n), n), l);
-				r = ft_vector3_normalize(r);
-				v = ft_vector3_normalize(ft_vector3_diff(cam->pos, phit));
-				ip = ft_vector3_sum2(ft_vector3_scale(kd * ft_fmax(ft_vector3_dot(l, n), 0), id), 
-									ft_vector3_scale(ks * ft_fmax(ft_vector3_dot(r, v), 0), is));
-				(void)alpha;
-				//ip = ft_vector3_sum2(ip, (t_vector3){0.2, 0.2, 0.2});
-				ip.x = ft_fmin(ip.x, 1);
-				ip.y = ft_fmin(ip.y, 1);
-				ip.z = ft_fmin(ip.z, 1);
-				ip = ft_vector3_scale(255, ip);
-				pix.cd = 255 << 24 | (int) ip.x << 16 | (int) ip.y << 8 | (int) ip.z;
-				pix.cd = calc_color(cam, object, _light);
+				pix.cd = calc_color(cam, object, light);
 				//if (ft_intersect(geo, (t_ray) {phit, light_dir}, &t0, &t1))
 				//	transmission = 0;
 				(void)transmission;
-				//pix.cd = ft_color_lerp(0xFFFF0000, pix.cd, ft_fmax(0, ft_vector3_dot(nhit, l)));
 				ft_image_pixel_put(img, &pix);
 			}
 			else
