@@ -18,6 +18,8 @@ void	ft_camera_rotate(t_camera *camera, double a_yaw, double a_pitch)
 	camera->pitch.angle = a_pitch;
 	camera->orient = ft_qrot_mult(\
 	ft_qrot_mult(camera->yaw, camera->pitch), camera->projection);
+	camera->pos = ft_qrot_rotate(camera->pos, camera->orient);
+	camera->dir = ft_qrot_rotate(camera->dir, camera->orient);
 }
 
 void	ft_camera_move(t_camera *camera, double up, double right)

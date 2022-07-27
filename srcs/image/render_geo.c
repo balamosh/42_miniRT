@@ -6,7 +6,7 @@
 /*   By: sotherys <sotherys@student.21-school.ru>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/16 10:41:04 by sotherys          #+#    #+#             */
-/*   Updated: 2022/07/18 21:15:56 by sotherys         ###   ########.fr       */
+/*   Updated: 2022/07/27 15:17:27 by sotherys         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,58 +27,125 @@ void	ft_point_to_pixel(t_camera *cam, t_point *pt, t_pixel *pix)
 }
 
 #include "ray.h"
+#include "object.h"
+#include "light.h"
+#include <stdio.h>
 
-void	ft_render_geo(t_image *img, t_geometry *geo, t_camera *cam)
+t_object	*ft_intersect(t_object *obj, t_ray ray)
+{
+	t_sphere	*sphere;
+	t_vector3	l;
+	double		tca, thc, d, t, t0, t1;
+
+	sphere = (t_sphere *) obj->obj;
+	l = ft_vector3_diff(sphere->center, ray.pos);
+	tca = ft_vector3_dot(l, ray.dir);
+	if (ft_vector3_len(l) * ft_vector3_len(l) - tca * tca < 0)
+		return (NULL);
+	else
+	{
+		d = sqrt(ft_vector3_len(l) * ft_vector3_len(l) - tca * tca);
+		thc = sqrt(sphere->radius * sphere->radius - d * d);
+		if (d > sphere->radius)
+			return (NULL);
+		t0 = tca - thc;
+		t1 = tca + thc;
+		if (t0 > 0 && t1 > 0)
+			t = t0;
+		else if (t0 < 0 && t1 > 0)
+			t = t1;
+		else
+			return (NULL);
+	}
+	obj->phit = ft_vector3_sum2(ray.pos, ft_vector3_scale(t, ray.dir));
+	obj->nhit = ft_vector3_normalize(ft_vector3_diff(obj->phit, sphere->center));
+	return (obj);
+}
+
+int	calc_color(t_camera *cam, t_object *obj, t_light *light)
+{
+	t_vector3	l, r, v, ip;
+	int			color;
+
+	l = ft_vector3_normalize(ft_vector3_diff(light->pos, obj->phit));
+	r = ft_vector3_diff(ft_vector3_scale(2 * ft_vector3_dot(l, obj->nhit), obj->nhit), l);
+	r = ft_vector3_normalize(r);
+	v = ft_vector3_normalize(ft_vector3_diff(cam->pos, obj->phit));
+	ip = ft_vector3_sum2(ft_vector3_scale(light->kd * ft_fmax(ft_vector3_dot(l, obj->nhit), 0), light->id), 
+						ft_vector3_scale(light->ks * ft_fmax(ft_vector3_dot(r, v), 0), light->is));
+	ip.x = ft_fmin(ip.x, 1);
+	ip.y = ft_fmin(ip.y, 1);
+	ip.z = ft_fmin(ip.z, 1);
+	ip = ft_vector3_scale(255, ip);
+	color = 255 << 24 | (int) ip.x << 16 | (int) ip.y << 8 | (int) ip.z;
+	return (color);
+}
+
+void	ft_render_geo(t_image *img, t_object *obj, t_light *_light, t_camera *cam)
 {
 	int	i;
 	int	j;
-	double	gx, gy, t1, t2, t, r_sphere;
-	t_vector3	bn, qx, qy, p1m, c_sphere;
+	double	gx, gy, transmission;
+	double	ks, kd, alpha;
+	t_vector3	ip, is, id, l, n, r, v;
+	t_vector3	bn, qx, qy, p1m, light, phit, nhit;
 	t_ray	primray;
 	t_pixel	pix;
 	void	*object;
 
-	(void)geo;
-	cam->pos = (t_vector3){-5, 0, 0};
-	cam->dir = (t_vector3){1, 0, 0};
 	gx = tan(cam->fov / 2);
 	gy = gx * (cam->res.height - 1) / (cam->res.width - 1);
 	bn = ft_vector3_cross(cam->up, cam->dir);
 	qx = ft_vector3_scale(2 * gx / (cam->res.width - 1), bn);
 	qy = ft_vector3_scale(2 * gy / (cam->res.height - 1), cam->up);
 	p1m = ft_vector3_sum3(cam->dir, ft_vector3_scale(-gx, bn), ft_vector3_scale(-gy, cam->up));
-	c_sphere = (t_vector3) {0, 0, 0};
-	r_sphere = 1;
+	//light = (t_vector3) {10, 5, 3};
+	light = (t_vector3) {3, 0, 0};
 	object = NULL;
+	ks = 1;
+	kd = 1;
+	alpha = 1;
+	is = (t_vector3) {1, 1, 1};
+	id = (t_vector3) {0, 1, 0};
 	i = 0;
 	while (i < cam->res.width)
 	{
 		j = 0;
 		while (j < cam->res.height)
 		{
-			primray.pos = ft_vector3_sum3(p1m, ft_vector3_scale(i - 1, qx), ft_vector3_scale(j - 1, qy));
-			primray.dir = ft_vector3_normalize(primray.pos);
-			t1 = -ft_vector3_dot(ft_vector3_diff(primray.pos, c_sphere), primray.dir) + r_sphere;
-			t2 = -ft_vector3_dot(ft_vector3_diff(primray.pos, c_sphere), primray.dir) - r_sphere;
-			object = (void *) &object;
-			if (t1 > 0 && t2 > 0)
-				t = t1;
-			else if (t1 < 0 && t2 > 0)
-				t = t2;
-			else
-				object = NULL;
-			pix.x = t;
+			primray.dir = ft_vector3_sum3(p1m, ft_vector3_scale(i - 1, qx), ft_vector3_scale(j - 1, qy));
+			primray.pos = ft_vector3_sum2(cam->pos, primray.dir);
+			primray.dir = ft_vector3_normalize(primray.dir);
+			object = ft_intersect(obj, primray);
 			pix.x = i;
-			pix.y = j;
-			pix.cd = 0xFF00FF00 * 1;
-			if (object != NULL)\
+			pix.y = cam->res.height - j;
+			if (object != NULL)
 			{
-				pix.cd = 0xFF00FF00 * 1;
+				transmission = 1;
+				l = ft_vector3_normalize(ft_vector3_diff(light, phit));
+				n = nhit;
+				r = ft_vector3_diff(ft_vector3_scale(2 * ft_vector3_dot(l, n), n), l);
+				r = ft_vector3_normalize(r);
+				v = ft_vector3_normalize(ft_vector3_diff(cam->pos, phit));
+				ip = ft_vector3_sum2(ft_vector3_scale(kd * ft_fmax(ft_vector3_dot(l, n), 0), id), 
+									ft_vector3_scale(ks * ft_fmax(ft_vector3_dot(r, v), 0), is));
+				(void)alpha;
+				//ip = ft_vector3_sum2(ip, (t_vector3){0.2, 0.2, 0.2});
+				ip.x = ft_fmin(ip.x, 1);
+				ip.y = ft_fmin(ip.y, 1);
+				ip.z = ft_fmin(ip.z, 1);
+				ip = ft_vector3_scale(255, ip);
+				pix.cd = 255 << 24 | (int) ip.x << 16 | (int) ip.y << 8 | (int) ip.z;
+				pix.cd = calc_color(cam, object, _light);
+				//if (ft_intersect(geo, (t_ray) {phit, light_dir}, &t0, &t1))
+				//	transmission = 0;
+				(void)transmission;
+				//pix.cd = ft_color_lerp(0xFFFF0000, pix.cd, ft_fmax(0, ft_vector3_dot(nhit, l)));
 				ft_image_pixel_put(img, &pix);
 			}
 			else
 			{
-				pix.cd = 0xFFFFFFFF;
+				pix.cd = 0xFF000000;
 				ft_image_pixel_put(img, &pix);
 			}
 			++j;

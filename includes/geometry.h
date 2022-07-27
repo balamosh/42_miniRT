@@ -6,7 +6,7 @@
 /*   By: sotherys <sotherys@student.21-school.ru>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/15 01:21:53 by sotherys          #+#    #+#             */
-/*   Updated: 2021/11/18 11:25:03 by sotherys         ###   ########.fr       */
+/*   Updated: 2022/07/27 12:20:46 by sotherys         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,8 @@ typedef struct s_geometry
 	t_edge	*edges;
 	size_t	nedges;
 	size_t	sedges;
+	double	r;
+	t_vector3	c;
 }				t_geometry;
 
 t_bool	ft_geometry(t_geometry *geo, size_t spts, size_t sedges);

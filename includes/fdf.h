@@ -6,7 +6,7 @@
 /*   By: sotherys <sotherys@student.21-school.ru>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/26 23:19:20 by sotherys          #+#    #+#             */
-/*   Updated: 2021/11/23 06:48:14 by sotherys         ###   ########.fr       */
+/*   Updated: 2022/07/27 15:10:22 by sotherys         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,9 +22,11 @@
 # include "image.h"
 # include "camera.h"
 # include "geometry.h"
+# include "object.h"
+# include "light.h"
 
-# define FDF_WINDOW_WIDTH 1080
-# define FDF_WINDOW_HEIGHT 1080
+# define FDF_WINDOW_WIDTH 500
+# define FDF_WINDOW_HEIGHT 500
 # define FDF_TMP_IMG 5
 
 typedef struct s_fdf
@@ -44,6 +46,11 @@ typedef struct s_fdf
 	t_bool		mmb;
 	t_bool		render_bbox;
 	t_bool		error;
+	t_object	test_obj;
+	t_sphere	test_sphere;
+	t_light		test_light;
+	t_list		*objects;
+	t_list		*lights;
 }				t_fdf;
 
 void	ft_fdf(char *filename);

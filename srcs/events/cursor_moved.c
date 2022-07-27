@@ -22,7 +22,7 @@ int	ft_cursor_moved(int x, int y, t_fdf *tab)
 		ft_camera_rotate(&tab->axis_cam, \
 		2 * PI * (x - tab->cursor.x) / tab->window.width, \
 		2 * PI * (y - tab->cursor.y) / tab->window.width);
-		ft_camera_update_projection(&tab->camera);
+		//ft_camera_update_projection(&tab->camera);
 		ft_camera_update_projection(&tab->axis_cam);
 		tab->cursor = (t_pixel){x, y, 0};
 		ft_fdf_render(tab);

@@ -6,7 +6,7 @@
 /*   By: sotherys <sotherys@student.21-school.ru>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/23 06:35:52 by sotherys          #+#    #+#             */
-/*   Updated: 2021/11/23 06:48:14 by sotherys         ###   ########.fr       */
+/*   Updated: 2022/07/27 15:16:04 by sotherys         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,11 +18,12 @@ void	ft_fdf_render(t_fdf *tab)
 	t_pixel	o[3];
 
 	ft_image_clear(&tab->image[tab->img_id]);
-	if (!tab->render_bbox)
-		ft_render_geo(&tab->image[tab->img_id], &tab->geo, &tab->camera);
-	else
-		ft_render_geo(&tab->image[tab->img_id], &tab->bbox, &tab->camera);
-	ft_render_geo(&tab->image[tab->img_id], &tab->axis_geo, &tab->axis_cam);
+	//if (!tab->render_bbox)
+	//	ft_render_geo(&tab->image[tab->img_id], &tab->geo, &tab->camera);
+	//else
+	//	ft_render_geo(&tab->image[tab->img_id], &tab->bbox, &tab->camera);
+	//ft_render_geo(&tab->image[tab->img_id], &tab->axis_geo, &tab->axis_cam);
+	ft_render_geo(&tab->image[tab->img_id], &tab->test_obj, &tab->test_light, &tab->camera);
 	mlx_put_image_to_window(tab->mlx, \
 	tab->window.ptr, tab->image[tab->img_id].img_ptr, 0, 0);
 	tab->img_id = (tab->img_id + 1) % FDF_TMP_IMG;

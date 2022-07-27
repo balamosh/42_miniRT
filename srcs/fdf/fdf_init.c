@@ -6,7 +6,7 @@
 /*   By: sotherys <sotherys@student.21-school.ru>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/27 03:03:34 by sotherys          #+#    #+#             */
-/*   Updated: 2021/11/18 13:05:22 by sotherys         ###   ########.fr       */
+/*   Updated: 2022/07/27 15:11:44 by sotherys         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,27 @@ t_bool	ft_fdf_init(t_fdf *tab)
 	(t_res){ft_min(FDF_WINDOW_WIDTH, FDF_WINDOW_HEIGHT) / 10, \
 			ft_min(FDF_WINDOW_WIDTH, FDF_WINDOW_HEIGHT) / 10});
 	ft_camera_fit_geo(&tab->camera, &tab->geo);
+	
+	tab->camera.pos = (t_vector3){3, 0, 0};
+	tab->camera.dir = (t_vector3){-1, 0, 0};
+	tab->camera.up = (t_vector3){0, 1, 0};
+	tab->camera.fov = PI / 2;
+	tab->camera.yaw = (t_qrot) {(t_vector3) {0, 1, 0}, 0};
+	tab->camera.pitch = (t_qrot) {(t_vector3) {0, 0, 1}, 0};
+	tab->camera.orient = ft_qrot_mult(tab->camera.yaw, tab->camera.pitch);
+	tab->camera.projection = (t_qrot) {(t_vector3) {0, 0, 1}, 0};
+
+	tab->objects = NULL;
+	tab->lights = NULL;
+	tab->test_sphere.center = (t_vector3){0, 0, 0};
+	tab->test_sphere.radius = 1;
+	tab->test_obj.obj = (void *) &tab->test_sphere;
+	tab->test_light.pos = (t_vector3) {3, 0, 0};
+	tab->test_light.ks = 1;
+	tab->test_light.kd = 1;
+	tab->test_light.is = (t_vector3) {1, 1, 1};
+	tab->test_light.id = (t_vector3) {0, 1, 0};
+
 	tab->img_id = 0;
 	tab->lmb = false;
 	tab->mmb = false;

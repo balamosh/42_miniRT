@@ -6,7 +6,7 @@
 /*   By: sotherys <sotherys@student.21-school.ru>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/04 14:06:54 by sotherys          #+#    #+#             */
-/*   Updated: 2021/11/18 10:15:44 by sotherys         ###   ########.fr       */
+/*   Updated: 2022/07/27 15:07:33 by sotherys         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,5 +43,15 @@ void	ft_split_free(char **out);
 
 int		ft_isdigit(int c);
 int		ft_atoi(const char *str);
+
+typedef struct s_list
+{
+	void			*data;
+	struct s_list	*next;
+}				t_list;
+
+t_list	*lst_new(void *data);
+void	lst_add_front(t_list **lst, t_list *new);
+t_list	*lst_find(t_list *lst, void *data, void (*cmp)(void *, void *));
 
 #endif
