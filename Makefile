@@ -30,11 +30,15 @@ SRCS_FILES	= main.c					\
 			  image/pixel_put.c			\
 			  image/plot_line.c			\
 			  image/render_geo.c		\
+			  libft/lst/lst_add_front.c	\
+			  libft/lst/lst_find.c		\
+			  libft/lst/lst_new.c		\
 			  libft/abs.c				\
 			  libft/atoi.c				\
 			  libft/fabs.c				\
 			  libft/fmax.c				\
 			  libft/fmin.c				\
+			  libft/fpow.c				\
 			  libft/isdigit.c			\
 			  libft/malloc.c			\
 			  libft/max.c				\

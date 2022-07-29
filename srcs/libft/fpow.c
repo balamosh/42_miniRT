@@ -1,26 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   lst_find.c                                         :+:      :+:    :+:   */
+/*   fpow.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: sotherys <sotherys@student.21-school.ru>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/07/27 11:25:45 by sotherys          #+#    #+#             */
-/*   Updated: 2022/07/29 09:42:10 by sotherys         ###   ########.fr       */
+/*   Created: 2022/07/28 22:17:22 by sotherys          #+#    #+#             */
+/*   Updated: 2022/07/28 22:18:43 by sotherys         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
-
-t_list	*lst_find(t_list *lst, void *data, int (*cmp)(void *, void *))
+double	ft_fpow(double x, int pow)
 {
-	if (!(lst && cmp))
-		return (NULL);
-	while (lst)
+	int		i;
+	double	ans;
+
+	ans = 1;
+	i = 0;
+	while (i < pow)
 	{
-		if (cmp(lst->data, data) == 0)
-			return (lst);
-		lst = lst->next;
+		ans *= x;
+		++i;
 	}
-	return (NULL);
+	return (ans);
 }

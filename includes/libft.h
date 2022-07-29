@@ -6,7 +6,7 @@
 /*   By: sotherys <sotherys@student.21-school.ru>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/04 14:06:54 by sotherys          #+#    #+#             */
-/*   Updated: 2022/07/27 15:07:33 by sotherys         ###   ########.fr       */
+/*   Updated: 2022/07/29 09:42:24 by sotherys         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ int		ft_min(int a, int b);
 int		ft_max(int a, int b);
 double	ft_fmin(double a, double b);
 double	ft_fmax(double a, double b);
+double	ft_fpow(double x, int pow);
 void	ft_swap(int *x, int *y);
 void	ft_putchar_fd(char c, int fd);
 void	ft_putstr_fd(char *s, int fd);
@@ -52,6 +53,6 @@ typedef struct s_list
 
 t_list	*lst_new(void *data);
 void	lst_add_front(t_list **lst, t_list *new);
-t_list	*lst_find(t_list *lst, void *data, void (*cmp)(void *, void *));
+t_list	*lst_find(t_list *lst, void *data, int (*cmp)(void *, void *));
 
 #endif

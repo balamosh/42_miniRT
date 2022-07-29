@@ -6,7 +6,7 @@
 /*   By: sotherys <sotherys@student.21-school.ru>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 12:21:36 by sotherys          #+#    #+#             */
-/*   Updated: 2022/07/27 15:07:03 by sotherys         ###   ########.fr       */
+/*   Updated: 2022/07/29 09:48:24 by sotherys         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,10 @@ typedef struct s_object
 {
 	t_obj_type		type;
 	void			*obj;
+	t_vector3		color;
 	t_vector3		phit;
 	t_vector3		nhit;
+	double			distance;
 }				t_object;
 
 typedef struct s_sphere

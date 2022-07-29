@@ -6,7 +6,7 @@
 /*   By: sotherys <sotherys@student.21-school.ru>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/27 03:03:34 by sotherys          #+#    #+#             */
-/*   Updated: 2022/07/27 15:11:44 by sotherys         ###   ########.fr       */
+/*   Updated: 2022/07/29 09:53:31 by sotherys         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,9 +80,21 @@ t_bool	ft_fdf_init(t_fdf *tab)
 
 	tab->objects = NULL;
 	tab->lights = NULL;
-	tab->test_sphere.center = (t_vector3){0, 0, 0};
-	tab->test_sphere.radius = 1;
-	tab->test_obj.obj = (void *) &tab->test_sphere;
+	tab->test_sphere[0].center = (t_vector3){0, 0, 0};
+	tab->test_sphere[0].radius = 1;
+	tab->test_obj[0].obj = (void *) &tab->test_sphere[0];
+	tab->test_obj[0].color = (t_vector3){0, 1, 0};
+	tab->test_sphere[1].center = (t_vector3){0, 0.2, -1.5};
+	tab->test_sphere[1].radius = 0.4;
+	tab->test_obj[1].obj = (void *) &tab->test_sphere[1];
+	tab->test_obj[1].color = (t_vector3){1, 0, 0};
+	tab->test_sphere[2].center = (t_vector3){1.5, 0.5, 0};
+	tab->test_sphere[2].radius = 0.4;
+	tab->test_obj[2].obj = (void *) &tab->test_sphere[2];
+	tab->test_obj[2].color = (t_vector3){1, 0, 1};
+	lst_add_front(&tab->objects, lst_new((void *)&tab->test_obj[0]));
+	lst_add_front(&tab->objects, lst_new((void *)&tab->test_obj[1]));
+	lst_add_front(&tab->objects, lst_new((void *)&tab->test_obj[2]));
 	tab->test_light.pos = (t_vector3) {3, 0, 0};
 	tab->test_light.ks = 1;
 	tab->test_light.kd = 1;
