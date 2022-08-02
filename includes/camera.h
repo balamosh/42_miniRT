@@ -6,7 +6,7 @@
 /*   By: sotherys <sotherys@student.21-school.ru>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/15 01:00:37 by sotherys          #+#    #+#             */
-/*   Updated: 2022/07/18 08:05:21 by sotherys         ###   ########.fr       */
+/*   Updated: 2022/07/29 19:33:09 by sotherys         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 # include "qrot.h"
 # include "res.h"
 
-typedef struct s_plane
+typedef struct s_camera_plane
 {
 	double	left;
 	double	right;
@@ -26,7 +26,7 @@ typedef struct s_plane
 	double	height;
 	double	pixel_width;
 	double	pixel_height;
-}				t_plane;
+}				t_camera_plane;
 
 typedef struct s_camera
 {
@@ -34,7 +34,7 @@ typedef struct s_camera
 	t_qrot		projection;
 	t_qrot		yaw;
 	t_qrot		pitch;
-	t_plane		plane;
+	t_camera_plane		plane;
 	t_res		res;
 	t_vector3	pos;
 	t_vector3	dir;

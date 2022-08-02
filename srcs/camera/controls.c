@@ -6,7 +6,7 @@
 /*   By: sotherys <sotherys@student.21-school.ru>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/15 04:52:50 by sotherys          #+#    #+#             */
-/*   Updated: 2022/07/28 22:13:02 by sotherys         ###   ########.fr       */
+/*   Updated: 2022/08/01 23:55:38 by sotherys         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ void	ft_camera_rotate(t_camera *camera, double a_yaw, double a_pitch)
 	ft_qrot_mult(camera->yaw, camera->pitch), camera->projection);
 	camera->pos = ft_qrot_rotate(camera->pos, camera->orient);
 	camera->dir = ft_qrot_rotate(camera->dir, camera->orient);
+	camera->up = ft_qrot_rotate(camera->up, camera->orient);
 }
 
 void	ft_camera_move(t_camera *camera, double up, double right)

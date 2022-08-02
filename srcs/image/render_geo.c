@@ -6,7 +6,7 @@
 /*   By: sotherys <sotherys@student.21-school.ru>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/16 10:41:04 by sotherys          #+#    #+#             */
-/*   Updated: 2022/07/29 11:55:01 by sotherys         ###   ########.fr       */
+/*   Updated: 2022/08/01 23:56:08 by sotherys         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,13 +31,16 @@ void	ft_point_to_pixel(t_camera *cam, t_point *pt, t_pixel *pix)
 #include "light.h"
 #include <stdio.h>
 
-int	ft_intersect(t_object *obj, t_ray ray)
+int	ft_intersect_sphere(t_object *obj, t_ray ray)
 {
 	t_sphere	*sphere;
 	t_vector3	l;
 	double		tca, thc, d, t, t0, t1;
 
-	sphere = (t_sphere *) obj->obj;
+	//printf("%f %f %f\n", ray.pos.x, ray.pos.y, ray.pos.z);
+	//printf("%f %f %f\n", ray.dir.x, ray.dir.y, ray.dir.z);
+	//printf("----------\n");
+	sphere = (t_sphere *) obj->data;
 	l = ft_vector3_diff(sphere->center, ray.pos);
 	tca = ft_vector3_dot(l, ray.dir);
 	if (ft_vector3_len(l) * ft_vector3_len(l) - tca * tca < 0)
@@ -45,9 +48,9 @@ int	ft_intersect(t_object *obj, t_ray ray)
 	else
 	{
 		d = sqrt(ft_vector3_len(l) * ft_vector3_len(l) - tca * tca);
-		thc = sqrt(sphere->radius * sphere->radius - d * d);
 		if (d > sphere->radius)
 			return (0);
+		thc = sqrt(sphere->radius * sphere->radius - d * d);
 		t0 = tca - thc;
 		t1 = tca + thc;
 		if (t0 > 0 && t1 > 0)
@@ -60,6 +63,26 @@ int	ft_intersect(t_object *obj, t_ray ray)
 	obj->phit = ft_vector3_sum2(ray.pos, ft_vector3_scale(t, ray.dir));
 	obj->nhit = ft_vector3_normalize(ft_vector3_diff(obj->phit, sphere->center));
 	obj->distance = ft_vector3_len(ft_vector3_diff(obj->phit, ray.pos));
+	//printf("%f,%f,%f,\n", obj->phit.x, obj->phit.y, obj->phit.z);
+	return (1);
+}
+
+int	ft_intersect_plane(t_object *obj, t_ray ray)
+{
+	t_plane	*plane;
+	double	denominator;
+	double	t;
+
+	plane = (t_plane *) obj->data;
+	denominator = ft_vector3_dot(plane->n, ray.dir);
+	if (ft_fabs(denominator) < 0.0000001)
+		return (0);
+	t = ft_vector3_dot(plane->n, ft_vector3_diff(plane->pos, ray.pos)) / denominator;
+	if (t < 0)
+		return (0);
+	obj->phit = ft_vector3_sum2(ray.pos, ft_vector3_scale(t, ray.dir));
+	obj->nhit = plane->n;
+	obj->distance = ft_vector3_len(ft_vector3_diff(obj->phit, ray.pos));
 	return (1);
 }
 
@@ -69,6 +92,7 @@ t_object	*ft_find_intersection(t_list *objects, t_ray ray)
 	t_object	*curr_object;
 	t_object	*found;
 	double		min_dist;
+	static int	(*intersect[2])(t_object *, t_ray) = {ft_intersect_sphere, ft_intersect_plane};
 
 	found = NULL;
 	min_dist = -1;
@@ -76,7 +100,7 @@ t_object	*ft_find_intersection(t_list *objects, t_ray ray)
 	while (curr_node)
 	{
 		curr_object = (t_object *)curr_node->data;
-		if (ft_intersect(curr_object, ray) && \
+		if (intersect[curr_object->type](curr_object, ray) && \
 			(min_dist < 0 || curr_object->distance < min_dist))
 		{
 			found = curr_object;
@@ -124,22 +148,29 @@ void	ft_render_geo(t_image *img, t_list *objects, t_light *light, t_camera *cam)
 
 	gx = tan(cam->fov / 2);
 	gy = gx * (cam->res.height - 1) / (cam->res.width - 1);
-	bn = ft_vector3_cross(cam->up, cam->dir);
+	bn = ft_vector3_normalize(ft_vector3_cross(cam->dir, cam->up));
 	qx = ft_vector3_scale(2 * gx / (cam->res.width - 1), bn);
 	qy = ft_vector3_scale(2 * gy / (cam->res.height - 1), cam->up);
 	p1m = ft_vector3_sum3(cam->dir, ft_vector3_scale(-gx, bn), ft_vector3_scale(-gy, cam->up));
+	//printf("%f %f %f\n", qx.x, qx.y, qx.z);
+	//printf("%f %f %f\n", qy.x, qy.y, qy.z);
+	//printf("----------\n");
 	i = 0;
 	while (i < cam->res.width)
 	{
 		j = 0;
 		while (j < cam->res.height)
 		{
-			primray.dir = ft_vector3_sum3(p1m, ft_vector3_scale(i - 1, qx), ft_vector3_scale(j - 1, qy));
-			primray.pos = ft_vector3_sum2(cam->pos, primray.dir);
-			primray.dir = ft_vector3_normalize(primray.dir);
-			object = ft_find_intersection(objects, primray);
 			pix.x = i;
 			pix.y = cam->res.height - j;
+			primray.dir = ft_vector3_sum3(p1m, ft_vector3_scale(i, qx), ft_vector3_scale(j, qy));
+			primray.pos = ft_vector3_sum2(cam->pos, primray.dir);
+			primray.dir = ft_vector3_normalize(primray.dir);
+			//printf("%f,%f,%f,\n", primray.pos.x, primray.pos.y, primray.pos.z);
+			//printf("%f,%f,%f,\n", primray.dir.x, primray.dir.y, primray.dir.z);
+			//printf("%f,%f,%f,\n", primray.pos.x + primray.dir.x, primray.pos.y + primray.dir.y, primray.pos.z + primray.dir.z);
+			//printf("----------\n");
+			object = ft_find_intersection(objects, primray);
 			if (object != NULL)
 			{
 				transmission = 1;
@@ -154,6 +185,10 @@ void	ft_render_geo(t_image *img, t_list *objects, t_light *light, t_camera *cam)
 				pix.cd = 0xFF000000;
 				ft_image_pixel_put(img, &pix);
 			}
+			pix.x = cam->res.width - 10;
+			pix.y = cam->res.height - 10;
+			pix.cd = 0xFFFFFFFF;
+			ft_image_pixel_put(img, &pix);
 			++j;
 		}
 		++i;
