@@ -6,7 +6,7 @@
 /*   By: sotherys <sotherys@student.21-school.ru>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 12:21:36 by sotherys          #+#    #+#             */
-/*   Updated: 2022/08/01 23:37:22 by sotherys         ###   ########.fr       */
+/*   Updated: 2022/08/05 05:07:20 by sotherys         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,8 @@
 typedef enum s_obj_type
 {
 	OBJ_SPHERE,
-	OBJ_PLANE
+	OBJ_PLANE,
+	OBJ_CYLINDER
 }			t_obj_type;
 
 typedef struct s_object
@@ -42,5 +43,13 @@ typedef struct s_plane
 	t_vector3	pos;
 	t_vector3	n;
 }				t_plane;
+
+typedef struct s_cylinder
+{
+	t_vector3	pos;
+	t_vector3	n;
+	double		height;
+	double		radius;
+}				t_cylinder;
 
 #endif

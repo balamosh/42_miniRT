@@ -6,7 +6,7 @@
 /*   By: sotherys <sotherys@student.21-school.ru>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/16 10:41:04 by sotherys          #+#    #+#             */
-/*   Updated: 2022/08/01 23:56:08 by sotherys         ###   ########.fr       */
+/*   Updated: 2022/08/05 17:08:07 by sotherys         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,9 +37,6 @@ int	ft_intersect_sphere(t_object *obj, t_ray ray)
 	t_vector3	l;
 	double		tca, thc, d, t, t0, t1;
 
-	//printf("%f %f %f\n", ray.pos.x, ray.pos.y, ray.pos.z);
-	//printf("%f %f %f\n", ray.dir.x, ray.dir.y, ray.dir.z);
-	//printf("----------\n");
 	sphere = (t_sphere *) obj->data;
 	l = ft_vector3_diff(sphere->center, ray.pos);
 	tca = ft_vector3_dot(l, ray.dir);
@@ -63,7 +60,6 @@ int	ft_intersect_sphere(t_object *obj, t_ray ray)
 	obj->phit = ft_vector3_sum2(ray.pos, ft_vector3_scale(t, ray.dir));
 	obj->nhit = ft_vector3_normalize(ft_vector3_diff(obj->phit, sphere->center));
 	obj->distance = ft_vector3_len(ft_vector3_diff(obj->phit, ray.pos));
-	//printf("%f,%f,%f,\n", obj->phit.x, obj->phit.y, obj->phit.z);
 	return (1);
 }
 
@@ -85,6 +81,20 @@ int	ft_intersect_plane(t_object *obj, t_ray ray)
 	obj->distance = ft_vector3_len(ft_vector3_diff(obj->phit, ray.pos));
 	return (1);
 }
+
+/*
+int	ft_intersect_cylinder(t_object *obj, t_ray ray)
+{
+	t_cylinder	*cylinder;
+	t_vector3	x, y, z, d;
+
+	cylinder = (t_cylinder) obj->data;
+	x = ft_vector3_cross(cylinder->n, ray.dir);
+	z = cylinder->n;
+	y = ft_vector3_cross(z, x);
+	d = ft_vector3_scale(ft_vector3_dot()) 
+}
+*/
 
 t_object	*ft_find_intersection(t_list *objects, t_ray ray)
 {
@@ -111,40 +121,72 @@ t_object	*ft_find_intersection(t_list *objects, t_ray ray)
 	return (found);
 }
 
-int	calc_color(t_camera *cam, t_object *obj, t_list *objects, t_light *light)
+int	color_to_int(t_vector3 color)
 {
-	t_vector3	l, r, v, ip;
-	int			color;
-	int			not_in_shadow;
-
-	not_in_shadow = 1;
-	l = ft_vector3_normalize(ft_vector3_diff(light->pos, obj->phit));
-	if (ft_find_intersection(objects, (t_ray){ft_vector3_sum2(obj->phit, ft_vector3_scale(0.00001, obj->nhit)), l}))
-		not_in_shadow = 0;
-	r = ft_vector3_diff(ft_vector3_scale(2 * ft_vector3_dot(l, obj->nhit), obj->nhit), l);
-	r = ft_vector3_normalize(r);
-	v = ft_vector3_normalize(ft_vector3_diff(cam->pos, obj->phit));
-	ip = ft_vector3_sum3(ft_vector3_scale(0.1, (t_vector3){1, 1, 1}), 
-						ft_vector3_scale(not_in_shadow * light->kd * ft_fmax(ft_vector3_dot(l, obj->nhit), 0), light->is), 
-						ft_vector3_scale(not_in_shadow * light->ks * ft_fpow(ft_fmax(ft_vector3_dot(r, v), 0), 32), light->is));
-	ip = (t_vector3){ip.x * obj->color.x, ip.y * obj->color.y, ip.z * obj->color.z};
-	ip.x = ft_fmin(ip.x, 1);
-	ip.y = ft_fmin(ip.y, 1);
-	ip.z = ft_fmin(ip.z, 1);
-	ip = ft_vector3_scale(255, ip);
-	color = 255 << 24 | (int) ip.x << 16 | (int) ip.y << 8 | (int) ip.z;
-	return (color);
+	color.x = ft_fmin(color.x, 1);
+	color.y = ft_fmin(color.y, 1);
+	color.z = ft_fmin(color.z, 1);
+	color = ft_vector3_scale(255, color);
+	return (255 << 24 | (int) color.x << 16 | (int) color.y << 8 | (int) color.z);
 }
 
-void	ft_render_geo(t_image *img, t_list *objects, t_light *light, t_camera *cam)
+t_vector3	color_mult(t_vector3 c1, t_vector3 c2)
+{
+	return ((t_vector3){c1.x * c2.x, c1.y * c2.y, c1.z * c2.z});
+}
+
+t_vector3	trace(t_camera *cam, t_ray ray, t_list *objects, t_light *light, int depth)
+{
+	t_camera	r_cam;
+	t_vector3	p, n, l, r, v, ip, phit_offset, v2, r2;
+	t_vector3	color, r_color;
+	t_object	*obj;
+	int			not_in_shadow;
+
+	if (depth > 3)
+		return ((t_vector3){0, 0, 0});
+	obj = ft_find_intersection(objects, ray);
+	if (obj == NULL)
+		return ((t_vector3){0, 0, 0});
+	p = obj->phit;
+	n = obj->nhit;
+	phit_offset = ft_vector3_sum2(p, ft_vector3_scale(0.00001, n));
+	r_cam.pos = phit_offset;
+	r_cam.pos = cam->pos;
+	not_in_shadow = 1;
+	l = ft_vector3_normalize(ft_vector3_diff(light->pos, p));
+	if (ft_find_intersection(objects, (t_ray){phit_offset, l}))
+		not_in_shadow = 0;
+	r = ft_vector3_diff(ft_vector3_scale(2 * ft_vector3_dot(l, n), n), l);
+	r = ft_vector3_normalize(r);
+	v = ft_vector3_normalize(ft_vector3_diff(ray.pos, p));
+	v2 = ft_vector3_normalize(ft_vector3_diff(ray.pos, p));
+	r2 = ft_vector3_diff(ft_vector3_scale(2 * ft_vector3_dot(v2, n), n), v2);
+	color = color_mult(light->color, obj->color);
+	if (light->type == LIGHT_AMBIENT)
+		ip = color;
+	else if (light->type == LIGHT_SPOT)
+		ip = ft_vector3_sum2(ft_vector3_scale(not_in_shadow * light->kd * ft_fmax(ft_vector3_dot(l, n), 0), color), 
+							ft_vector3_scale(not_in_shadow * light->ks * ft_fpow(ft_fmax(ft_vector3_dot(r, v), 0), 16), light->color));
+	ip = ft_vector3_scale(light->intensity, ip);
+	r_color = trace(&r_cam, (t_ray){phit_offset, r2}, objects, light, depth + 1);
+	ip = ft_vector3_sum2(ip, 
+						ft_vector3_scale(
+							not_in_shadow * light->ks, 
+							r_color));
+	return (ip);
+}
+
+void	ft_render_geo(t_image *img, t_list *objects, t_list *lights, t_camera *cam)
 {
 	int	i;
 	int	j;
-	double	gx, gy, transmission;
-	t_vector3	bn, qx, qy, p1m;
+	double	gx, gy;
+	t_vector3	bn, qx, qy, p1m, color;
 	t_ray	primray;
 	t_pixel	pix;
-	t_object	*object;
+	t_light	*curr_light;
+	t_list	*curr_node;
 
 	gx = tan(cam->fov / 2);
 	gy = gx * (cam->res.height - 1) / (cam->res.width - 1);
@@ -152,9 +194,6 @@ void	ft_render_geo(t_image *img, t_list *objects, t_light *light, t_camera *cam)
 	qx = ft_vector3_scale(2 * gx / (cam->res.width - 1), bn);
 	qy = ft_vector3_scale(2 * gy / (cam->res.height - 1), cam->up);
 	p1m = ft_vector3_sum3(cam->dir, ft_vector3_scale(-gx, bn), ft_vector3_scale(-gy, cam->up));
-	//printf("%f %f %f\n", qx.x, qx.y, qx.z);
-	//printf("%f %f %f\n", qy.x, qy.y, qy.z);
-	//printf("----------\n");
 	i = 0;
 	while (i < cam->res.width)
 	{
@@ -166,28 +205,15 @@ void	ft_render_geo(t_image *img, t_list *objects, t_light *light, t_camera *cam)
 			primray.dir = ft_vector3_sum3(p1m, ft_vector3_scale(i, qx), ft_vector3_scale(j, qy));
 			primray.pos = ft_vector3_sum2(cam->pos, primray.dir);
 			primray.dir = ft_vector3_normalize(primray.dir);
-			//printf("%f,%f,%f,\n", primray.pos.x, primray.pos.y, primray.pos.z);
-			//printf("%f,%f,%f,\n", primray.dir.x, primray.dir.y, primray.dir.z);
-			//printf("%f,%f,%f,\n", primray.pos.x + primray.dir.x, primray.pos.y + primray.dir.y, primray.pos.z + primray.dir.z);
-			//printf("----------\n");
-			object = ft_find_intersection(objects, primray);
-			if (object != NULL)
+			color = (t_vector3){0, 0, 0};
+			curr_node = lights;
+			while (curr_node)
 			{
-				transmission = 1;
-				pix.cd = calc_color(cam, object, objects, light);
-				//if (ft_intersect(geo, (t_ray) {phit, light_dir}, &t0, &t1))
-				//	transmission = 0;
-				(void)transmission;
-				ft_image_pixel_put(img, &pix);
+				curr_light = (t_light *) curr_node->data;
+				color = ft_vector3_sum2(color, trace(cam, primray, objects, curr_light, 0));
+				curr_node = curr_node->next;
 			}
-			else
-			{
-				pix.cd = 0xFF000000;
-				ft_image_pixel_put(img, &pix);
-			}
-			pix.x = cam->res.width - 10;
-			pix.y = cam->res.height - 10;
-			pix.cd = 0xFFFFFFFF;
+			pix.cd = color_to_int(color);
 			ft_image_pixel_put(img, &pix);
 			++j;
 		}

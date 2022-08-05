@@ -6,7 +6,7 @@
 /*   By: sotherys <sotherys@student.21-school.ru>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/08 12:11:02 by sotherys          #+#    #+#             */
-/*   Updated: 2022/07/29 09:39:00 by sotherys         ###   ########.fr       */
+/*   Updated: 2022/08/03 14:42:40 by sotherys         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,8 +59,7 @@ void	ft_plot_line(t_image *image, t_pixel *p0, t_pixel *p1);
 int		ft_color_lerp(int color1, int color2, double t);
 
 void	ft_camera_fit_geo(t_camera *cam, t_geometry *geo);
-//void	ft_render_geo(t_image *img, t_geometry *geo, t_camera *cam);
-void	ft_render_geo(t_image *img, t_list *objects, t_light *light, t_camera *cam);
+void	ft_render_geo(t_image *img, t_list *objects, t_list *light, t_camera *cam);
 void	ft_point_to_pixel(t_camera *cam, t_point *pt, t_pixel *pix);
 
 #endif
