@@ -6,7 +6,7 @@
 /*   By: sotherys <sotherys@student.21-school.ru>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 12:21:36 by sotherys          #+#    #+#             */
-/*   Updated: 2022/08/05 05:07:20 by sotherys         ###   ########.fr       */
+/*   Updated: 2022/08/14 10:04:13 by sotherys         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,9 @@ typedef struct s_plane
 typedef struct s_cylinder
 {
 	t_vector3	pos;
-	t_vector3	n;
+	t_vector3	axis;
+	t_plane		top;
+	t_plane		bot;
 	double		height;
 	double		radius;
 }				t_cylinder;

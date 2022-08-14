@@ -6,7 +6,7 @@
 /*   By: sotherys <sotherys@student.21-school.ru>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/26 23:19:20 by sotherys          #+#    #+#             */
-/*   Updated: 2022/08/03 14:44:36 by sotherys         ###   ########.fr       */
+/*   Updated: 2022/08/06 12:10:32 by sotherys         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,9 +46,10 @@ typedef struct s_fdf
 	t_bool		mmb;
 	t_bool		render_bbox;
 	t_bool		error;
-	t_object	test_obj[4];
+	t_object	test_obj[20];
 	t_sphere	test_sphere[3];
 	t_plane		test_plane[2];
+	t_cylinder	test_cylinder[3];
 	t_light		test_light[3];
 	t_list		*objects;
 	t_list		*lights;
