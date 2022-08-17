@@ -6,7 +6,7 @@
 /*   By: sotherys <sotherys@student.21-school.ru>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/16 10:41:04 by sotherys          #+#    #+#             */
-/*   Updated: 2022/08/14 10:46:40 by sotherys         ###   ########.fr       */
+/*   Updated: 2022/08/17 18:05:25 by sotherys         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,132 +82,16 @@ int	ft_intersect_plane(t_object *obj, t_ray ray)
 	return (1);
 }
 
-/*
-int	ft_intersect_cylinder(t_object *obj, t_ray ray)
+void	check_intersect_disc(t_object *obj, t_disc *disc, t_ray ray)
 {
-	t_cylinder	*cylinder;
-	t_object	plane1, plane2;
-	t_plane		p1, p2;
-	t_vector3	x, z, y, vd, o;
-	double		d, beta, gamma, t, zmin, zmax, y_calc, x_disc, z_disc;
-	t_qrot		q1, q2, q3, r;
-
-	cylinder = (t_cylinder *) obj->data;
-	p1 = (t_plane){cylinder->pos, vec3_scale(-1, cylinder->n)};
-	p2 = (t_plane){vec3_sum2(cylinder->pos, vec3_scale(cylinder->height, cylinder->n)), cylinder->n};
-	plane1.data = (void *)&p1;
-	plane2.data = (void *)&p2;
-	x = vec3_normalize(vec3_cross(cylinder->n, ray.dir));
-	y = vec3_normalize(cylinder->n);
-	z = vec3_normalize(vec3_cross(x, y));
-	if (vec3_len(x) < EPS || vec3_len(y) < EPS || vec3_len(z) < EPS)
-		return (0);
-	obj->distance = -1;
-	if (ft_intersect_plane(&plane1, ray))
-	{
-		x_disc = vec3_dot(plane1.phit, x);
-		z_disc = vec3_dot(plane1.phit, z);
-		if (x_disc * x_disc + z_disc * z_disc <= cylinder->radius * cylinder->radius)
-		{
-			obj->phit = plane1.phit;
-			obj->phit = plane1.nhit;
-			obj->distance = plane1.distance;
-		}
-	}
-	if (ft_intersect_plane(&plane2, ray) && (obj->distance > plane2.distance || obj->distance < 0))
-	{
-		x_disc = vec3_dot(plane2.phit, x);
-		z_disc = vec3_dot(plane2.phit, z);
-		if (x_disc * x_disc + z_disc * z_disc <= cylinder->radius * cylinder->radius)
-		{
-			obj->phit = plane2.phit;
-			obj->phit = plane2.nhit;
-			obj->distance = plane2.distance;
-		}
-	}
-	if (obj->distance >= 0)
-		return (1);
-	vd = vec3_scale(vec3_dot(vec3_diff(ray.pos, cylinder->pos), x), x);
-	d = vec3_dot(vd, x);
-	beta = vec3_dot(ray.dir, z);
-	gamma = vec3_dot(ray.dir, y);
-	t = (cylinder->radius * cylinder->radius - d * d) / (beta * beta);
-	if (t < 0)
-		return (0);
-	t = -sqrt(t);
-	y_calc = gamma * t;
-	o = vec3_diff(vec3_sum2(ray.dir, vec3_scale(t, ray.dir)), vd);
-	zmin = vec3_dot(cylinder->pos, y);
-	zmin -= o.y;
-	zmax = zmin + cylinder->height;
-	zmin = -0.3;
-	zmax = 0.3;
-	if (y_calc < zmin || y_calc > zmax)
-	{
-		//t = (-1) * t;
-		//y_calc = beta * t;
-		//if (y_calc < zmin || y_calc > zmax)
-		return (0);
-	}
-	(void)zmin;
-	(void)zmax;
-	(void)y_calc;
-	//if (gamma * t < zmin || gamma * t > zmax)
-	//	return (0);
-	q1 = ft_qrot_from_vec3(x, (t_vector3){1, 0, 0});
-	q2 = ft_qrot_from_vec3(y, (t_vector3){0, 1, 0});
-	q3 = ft_qrot_from_vec3(z, (t_vector3){0, 0, 1});
-	r = ft_qrot_mult(ft_qrot_mult(q1, q2), q3);
-	//printf("x: %f %f %f\n", x.x, x.y, x.z);
-	//printf("y: %f %f %f\n", y.x, y.y, y.z);
-	//printf("z: %f %f %f\n", z.x, z.y, z.z);
-	//printf("axis: %f %f %f, angle: %f\n", r.axis.x, r.axis.y, r.axis.z, r.angle);
-	obj->phit = (t_vector3){d, gamma * t, beta * t};
-	obj->phit = vec3_sum2(ft_qrot_rotate(obj->phit, r), o);
-	obj->nhit = vec3_normalize(vec3_diff(obj->phit, vec3_sum2(ft_qrot_rotate((t_vector3){0, obj->phit.y, 0}, r), o)));
-	obj->distance = vec3_len(vec3_diff(obj->phit, ray.pos));
-	return (1);
-}
-*/
-/*
-int	ft_intersect_cylinder(t_object *obj, t_ray ray)
-{
-	t_cylinder	*cylinder;
-	t_vector3	rdf, cp, p;
-	double		tp, tc, ti, ip;
-
-	cylinder = (t_cylinder *) obj->data;
-	rdf = (t_vector3){ray.dir.x, 0, ray.dir.z};
-	rdf = vec3_normalize(rdf);
-	cp = vec3_diff(ray.pos, (t_vector3){cylinder->pos.x, ray.pos.y, cylinder->pos.z});
-	tp = vec3_dot(cp, rdf);
-	if (vec3_dot(cp, cp) < tp * tp)
-		return (0);
-	tc = sqrt(vec3_dot(cp, cp) - tp * tp);
-	if (cylinder->radius * cylinder->radius < tc * tc)
-		return (0);
-	ti = sqrt(cylinder->radius * cylinder->radius - tc * tc);
-	ip = tp - ti;
-	p = vec3_sum2(ray.pos, vec3_scale(ip / vec3_dot(ray.dir, vec3_normalize(cp)), ray.dir));
-	//return (1);
-	if (p.y >= 0 && p.y <= 10)
-		return (1);
-	return (0);
-}
-*/
-
-void	cylinder_intersect_disc(t_object *obj, t_plane *disc, t_ray ray)
-{
-	t_cylinder	*cylinder;
 	t_object	p;
 	t_vector3	v;
 
-	cylinder = (t_cylinder *) obj->data;
-	p.data = (void *) disc;
+	p.data = (void *) &disc->plane;
 	if (ft_intersect_plane(&p, ray) && (obj->distance < 0 || p.distance < obj->distance))
 	{
-		v = vec3_diff(p.phit, disc->pos);
-		if (vec3_dot(v, v) < cylinder->radius * cylinder->radius)
+		v = vec3_diff(p.phit, disc->plane.pos);
+		if (vec3_dot(v, v) < disc->radius * disc->radius)
 		{
 			obj->phit = p.phit;
 			obj->phit = p.nhit;
@@ -235,12 +119,13 @@ void	cylinder_intersect_tube(t_object *obj, t_ray ray)
 	t = -(b + sqrt(d)) / (2 * a);
 	phit = vec3_sum2(ray.pos, vec3_scale(t, ray.dir));
 	distance = vec3_len(vec3_diff(phit, ray.pos));
-	z = vec3_dot(phit, cylinder->axis);
+	z = vec3_dot(phit, cylinder->axis) - vec3_dot(cylinder->pos, cylinder->axis);
 	if (z >= 0 && z <= cylinder->height && (obj->distance < 0 || distance < obj->distance))
 	{
 		obj->phit = phit;
 		obj->distance = distance;
-		obj->nhit = vec3_normalize(vec3_diff(obj->phit, vec3_sum2(cylinder->pos, vec3_scale(vec3_dot(obj->phit, cylinder->axis), cylinder->axis))));
+		obj->nhit = vec3_normalize(vec3_diff(obj->phit, 
+											vec3_scale(vec3_dot(obj->phit, cylinder->axis), cylinder->axis)));
 	}
 }
 
@@ -250,9 +135,55 @@ int	ft_intersect_cylinder(t_object *obj, t_ray ray)
 
 	cylinder = (t_cylinder *) obj->data;
 	obj->distance = -1;
-	cylinder_intersect_disc(obj, &cylinder->bot, ray);
-	cylinder_intersect_disc(obj, &cylinder->top, ray);
+	check_intersect_disc(obj, &cylinder->bot, ray);
+	check_intersect_disc(obj, &cylinder->top, ray);
 	cylinder_intersect_tube(obj, ray);
+	if (obj->distance >= 0)
+		return (1);
+	return (0);
+}
+
+void	cone_intersect_tube(t_object *obj, t_ray ray)
+{
+	t_cone		*cone;
+	t_vector3	dp, v1, v2, phit;
+	double		v3, v4;
+	double		a, b, c, d, t, z, distance;
+
+	cone = (t_cone *) obj->data;
+	dp = vec3_diff(ray.pos, cone->pos);
+	v1 = vec3_diff(ray.dir, vec3_scale(vec3_dot(ray.dir, cone->axis), cone->axis));
+	v2 = vec3_diff(dp, vec3_scale(vec3_dot(dp, cone->axis), cone->axis));
+	v3 = vec3_dot(ray.dir, cone->axis);
+	v4 = vec3_dot(dp, cone->axis);
+	a = cone->cos2a * vec3_dot(v1, v1) - cone->sin2a * v3 * v3;
+	b = 2 * cone->cos2a * vec3_dot(v1, v2) - 2 * cone->sin2a * v3 * v4;
+	c = cone->cos2a * vec3_dot(v2, v2) - cone->sin2a * v4 * v4;
+	d = b * b - 4 * a * c;
+	if (d < 0)
+		return ;
+	t = -(b + sqrt(d)) / (2 * a);
+	phit = vec3_sum2(ray.pos, vec3_scale(t, ray.dir));
+	distance = vec3_len(vec3_diff(phit, ray.pos));
+	z = vec3_dot(phit, cone->axis) - vec3_dot(cone->pos, cone->axis);
+	if (z >= cone->down && z <= cone->up && (obj->distance < 0 || distance < obj->distance))
+	{
+		obj->phit = phit;
+		obj->distance = distance;
+		obj->nhit = vec3_normalize(vec3_diff(obj->phit, 
+											vec3_scale(vec3_dot(obj->phit, cone->axis), cone->axis)));
+	}
+}
+
+int	ft_intersect_cone(t_object *obj, t_ray ray)
+{
+	t_cone	*cone;
+
+	cone = (t_cone *) obj->data;
+	obj->distance = -1;
+	check_intersect_disc(obj, &cone->bot, ray);
+	check_intersect_disc(obj, &cone->top, ray);
+	cone_intersect_tube(obj, ray);
 	if (obj->distance >= 0)
 		return (1);
 	return (0);
@@ -264,7 +195,7 @@ t_object	*ft_find_intersection(t_list *objects, t_ray ray)
 	t_object	*curr_object;
 	t_object	*found;
 	double		min_dist;
-	static int	(*intersect[3])(t_object *, t_ray) = {ft_intersect_sphere, ft_intersect_plane, ft_intersect_cylinder};
+	static int	(*intersect[4])(t_object *, t_ray) = {ft_intersect_sphere, ft_intersect_plane, ft_intersect_cylinder, ft_intersect_cone};
 
 	found = NULL;
 	min_dist = -1;
@@ -301,7 +232,7 @@ t_vector3	trace(t_camera *cam, t_ray ray, t_list *objects, t_light *light, int d
 {
 	t_camera	r_cam;
 	t_vector3	p, n, l, r, v, ip, phit_offset;
-	//t_vector3	v2, r2;
+	t_vector3	v2, r2;
 	t_vector3	color;
 	t_object	*obj;
 	int			not_in_shadow;
@@ -324,8 +255,8 @@ t_vector3	trace(t_camera *cam, t_ray ray, t_list *objects, t_light *light, int d
 	r = vec3_diff(vec3_scale(2 * vec3_dot(l, n), n), l);
 	r = vec3_normalize(r);
 	v = vec3_normalize(vec3_diff(ray.pos, p));
-	//v2 = vec3_normalize(vec3_diff(ray.pos, p));
-	//r2 = vec3_diff(vec3_scale(2 * vec3_dot(v2, n), n), v2);
+	v2 = vec3_normalize(vec3_diff(ray.pos, p));
+	r2 = vec3_diff(vec3_scale(2 * vec3_dot(v2, n), n), v2);
 	color = color_mult(light->color, obj->color);
 	if (light->type == LIGHT_AMBIENT)
 		ip = color;
@@ -333,10 +264,8 @@ t_vector3	trace(t_camera *cam, t_ray ray, t_list *objects, t_light *light, int d
 		ip = vec3_sum2(vec3_scale(not_in_shadow * light->kd * ft_fmax(vec3_dot(l, n), 0), color), 
 							vec3_scale(not_in_shadow * light->ks * ft_fpow(ft_fmax(vec3_dot(r, v), 0), 16), light->color));
 	ip = vec3_scale(light->intensity, ip);
-	/*
 	ip = vec3_sum2(ip, vec3_scale(not_in_shadow * light->ks, \
 									trace(&r_cam, (t_ray){phit_offset, r2}, objects, light, depth + 1)));
-	*/
 	return (ip);
 }
 

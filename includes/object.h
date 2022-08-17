@@ -6,7 +6,7 @@
 /*   By: sotherys <sotherys@student.21-school.ru>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 12:21:36 by sotherys          #+#    #+#             */
-/*   Updated: 2022/08/14 10:04:13 by sotherys         ###   ########.fr       */
+/*   Updated: 2022/08/17 17:51:49 by sotherys         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,8 @@ typedef enum s_obj_type
 {
 	OBJ_SPHERE,
 	OBJ_PLANE,
-	OBJ_CYLINDER
+	OBJ_CYLINDER,
+	OBJ_CONE
 }			t_obj_type;
 
 typedef struct s_object
@@ -44,14 +45,33 @@ typedef struct s_plane
 	t_vector3	n;
 }				t_plane;
 
+typedef struct s_disc
+{
+	t_plane	plane;
+	double	radius;
+}				t_disc;
+
 typedef struct s_cylinder
 {
 	t_vector3	pos;
 	t_vector3	axis;
-	t_plane		top;
-	t_plane		bot;
+	t_disc		top;
+	t_disc		bot;
 	double		height;
 	double		radius;
 }				t_cylinder;
+
+typedef struct s_cone
+{
+	t_vector3	pos;
+	t_vector3	axis;
+	double		alpha;
+	t_disc		top;
+	t_disc		bot;
+	double		up;
+	double		down;
+	double		sin2a;
+	double		cos2a;
+}				t_cone;
 
 #endif
