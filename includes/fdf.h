@@ -6,7 +6,7 @@
 /*   By: sotherys <sotherys@student.21-school.ru>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/26 23:19:20 by sotherys          #+#    #+#             */
-/*   Updated: 2022/08/17 17:17:19 by sotherys         ###   ########.fr       */
+/*   Updated: 2022/08/18 11:03:44 by sotherys         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ typedef struct s_fdf
 	t_plane		test_plane[2];
 	t_cylinder	test_cylinder[3];
 	t_cone		test_cone[3];
-	t_light		test_light[3];
+	t_light		test_light[10];
 	t_list		*objects;
 	t_list		*lights;
 }				t_fdf;

@@ -6,7 +6,7 @@
 /*   By: sotherys <sotherys@student.21-school.ru>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/27 03:03:34 by sotherys          #+#    #+#             */
-/*   Updated: 2022/08/17 18:06:13 by sotherys         ###   ########.fr       */
+/*   Updated: 2022/08/18 11:07:53 by sotherys         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,14 +60,12 @@ void	cylinder_disc_init(t_cylinder *cylinder)
 
 void	cone_disc_init(t_cone *cone)
 {
-	cone->bot.plane = (t_plane){vec3_sum2(cone->pos, vec3_scale(cone->down, cone->axis)), cone->axis};
+	cone->bot.plane = (t_plane){vec3_sum2(cone->pos, vec3_scale(cone->down, cone->axis)), vec3_scale(-1, cone->axis)};
 	cone->top.plane = (t_plane){vec3_sum2(cone->pos, vec3_scale(cone->up, cone->axis)), cone->axis};
 	cone->bot.radius = tan(cone->alpha) * ft_fabs(cone->down);
 	cone->top.radius = tan(cone->alpha) * ft_fabs(cone->up);
-	cone->sin2a = sin(cone->alpha);
-	cone->sin2a *= cone->sin2a;
-	cone->cos2a = cos(cone->alpha);
-	cone->cos2a *= cone->cos2a;
+	cone->sina = sin(cone->alpha);
+	cone->cosa = cos(cone->alpha);
 }
 
 t_bool	ft_fdf_init(t_fdf *tab)
@@ -89,9 +87,9 @@ t_bool	ft_fdf_init(t_fdf *tab)
 			ft_min(FDF_WINDOW_WIDTH, FDF_WINDOW_HEIGHT) / 10});
 	ft_camera_fit_geo(&tab->camera, &tab->geo);
 	
-	tab->camera.pos = (t_vector3){0, 0, -3};
-	tab->camera.dir = (t_vector3){0, 0, 1};
-	tab->camera.up = (t_vector3){0, 1, 0};
+	tab->camera.pos = (t_vector3){0, 3.5, 5};
+	tab->camera.dir = (t_vector3){0, -0.4, -1};
+	tab->camera.up = vec3_normalize(vec3_cross((t_vector3){1, 0, 0}, tab->camera.dir));
 	tab->camera.fov = PI / 2;
 	tab->camera.yaw = (t_qrot) {(t_vector3) {0, -1, 0}, 0};
 	tab->camera.pitch = (t_qrot) {(t_vector3) {1, 0, 0}, 0};
@@ -100,10 +98,10 @@ t_bool	ft_fdf_init(t_fdf *tab)
 
 	tab->objects = NULL;
 	tab->lights = NULL;
-	tab->test_sphere[0].center = (t_vector3){-1, 0, 0};
-	tab->test_sphere[0].radius = 0.4;
+	tab->test_sphere[0].center = (t_vector3){0, 1.1, 0};
+	tab->test_sphere[0].radius = 1;
 	tab->test_obj[0].data = (void *) &tab->test_sphere[0];
-	tab->test_obj[0].color = (t_vector3){1, 0, 1};
+	tab->test_obj[0].color = (t_vector3){1, 0, 0};
 	tab->test_obj[0].type = OBJ_SPHERE;
 	tab->test_sphere[1].center = (t_vector3){1, 0, 0};
 	tab->test_sphere[1].radius = 0.4;
@@ -118,31 +116,37 @@ t_bool	ft_fdf_init(t_fdf *tab)
 	tab->test_plane[1].pos = (t_vector3){0, 0, -3};
 	tab->test_plane[1].n = (t_vector3){0, 0, 1};
 	tab->test_obj[3].data = (void *) &tab->test_plane[1];
-	tab->test_obj[3].color = (t_vector3){1, 1, 0};
+	tab->test_obj[3].color = (t_vector3){0.3, 0.3, 0.3};
 	tab->test_obj[3].type = OBJ_PLANE;
-	tab->test_cylinder[0].pos = (t_vector3){0, 0, 0};
+	tab->test_cylinder[0].pos = (t_vector3){-2, 0.1, 1.5};
 	tab->test_cylinder[0].axis = (t_vector3){0, 1, 0};
 	tab->test_cylinder[0].radius = 0.5;
 	tab->test_cylinder[0].height = 2;
 	tab->test_obj[4].data = (void *) &tab->test_cylinder[0];
-	tab->test_obj[4].color = (t_vector3){1, 0, 0};
+	tab->test_obj[4].color = (t_vector3){0, 1, 0};
 	tab->test_obj[4].type = OBJ_CYLINDER;
-	tab->test_cone[0].pos = (t_vector3){0, 0, 0};
+	tab->test_cone[0].pos = (t_vector3){2, 1.6, 1.5};
 	tab->test_cone[0].axis = (t_vector3){0, 1, 0};
 	tab->test_cone[0].alpha = PI / 6;
 	tab->test_cone[0].up = 0.5;
 	tab->test_cone[0].down = -1.5;
 	tab->test_obj[5].data = (void *) &tab->test_cone[0];
-	tab->test_obj[5].color = (t_vector3){1, 0, 0};
+	tab->test_obj[5].color = (t_vector3){0, 0, 1};
 	tab->test_obj[5].type = OBJ_CONE;
+	tab->test_plane[0].pos = (t_vector3){0, 0, -3};
+	tab->test_plane[0].n = (t_vector3){0, 1, 0};
+	tab->test_obj[6].data = (void *) &tab->test_plane[0];
+	tab->test_obj[6].color = (t_vector3){0.4, 0.4, 0.4};
+	tab->test_obj[6].type = OBJ_PLANE;
 	cylinder_disc_init(&tab->test_cylinder[0]);
 	cone_disc_init(&tab->test_cone[0]);
 	lst_add_front(&tab->objects, lst_new((void *)&tab->test_obj[0]));
 	//lst_add_front(&tab->objects, lst_new((void *)&tab->test_obj[1]));
 	//lst_add_front(&tab->objects, lst_new((void *)&tab->test_obj[2]));
-	//lst_add_front(&tab->objects, lst_new((void *)&tab->test_obj[3]));
-	//lst_add_front(&tab->objects, lst_new((void *)&tab->test_obj[4]));
+	lst_add_front(&tab->objects, lst_new((void *)&tab->test_obj[3]));
+	lst_add_front(&tab->objects, lst_new((void *)&tab->test_obj[4]));
 	lst_add_front(&tab->objects, lst_new((void *)&tab->test_obj[5]));
+	lst_add_front(&tab->objects, lst_new((void *)&tab->test_obj[6]));
 
 	tab->test_light[0].type = LIGHT_SPOT;
 	tab->test_light[0].color = (t_vector3) {1, 1, 1};
@@ -156,12 +160,26 @@ t_bool	ft_fdf_init(t_fdf *tab)
 	tab->test_light[2].type = LIGHT_SPOT;
 	tab->test_light[2].color = (t_vector3) {1, 1, 1};
 	tab->test_light[2].intensity = 2;
-	tab->test_light[2].pos = (t_vector3) {-3, 0, -2};
+	tab->test_light[2].pos = (t_vector3) {0, 4, 0};
 	tab->test_light[2].ks = 0.5;
 	tab->test_light[2].kd = 1;
-	lst_add_front(&tab->lights, lst_new((void *)&tab->test_light[0]));
+	tab->test_light[3].type = LIGHT_SPOT;
+	tab->test_light[3].color = (t_vector3) {1, 0, 1};
+	tab->test_light[3].intensity = 0.5;
+	tab->test_light[3].pos = (t_vector3) {3, 4, 4};
+	tab->test_light[3].ks = 0.5;
+	tab->test_light[3].kd = 1;
+	tab->test_light[4].type = LIGHT_SPOT;
+	tab->test_light[4].color = (t_vector3) {0, 1, 1};
+	tab->test_light[4].intensity = 0.5;
+	tab->test_light[4].pos = (t_vector3) {-3, 4, 4};
+	tab->test_light[4].ks = 0.5;
+	tab->test_light[4].kd = 1;
+	//lst_add_front(&tab->lights, lst_new((void *)&tab->test_light[0]));
 	lst_add_front(&tab->lights, lst_new((void *)&tab->test_light[1]));
-	//lst_add_front(&tab->lights, lst_new((void *)&tab->test_light[2]));
+	lst_add_front(&tab->lights, lst_new((void *)&tab->test_light[2]));
+	lst_add_front(&tab->lights, lst_new((void *)&tab->test_light[3]));
+	lst_add_front(&tab->lights, lst_new((void *)&tab->test_light[4]));
 
 	tab->img_id = 0;
 	tab->lmb = false;

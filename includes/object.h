@@ -6,7 +6,7 @@
 /*   By: sotherys <sotherys@student.21-school.ru>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 12:21:36 by sotherys          #+#    #+#             */
-/*   Updated: 2022/08/17 17:51:49 by sotherys         ###   ########.fr       */
+/*   Updated: 2022/08/18 09:10:01 by sotherys         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,8 +70,8 @@ typedef struct s_cone
 	t_disc		bot;
 	double		up;
 	double		down;
-	double		sin2a;
-	double		cos2a;
+	double		sina;
+	double		cosa;
 }				t_cone;
 
 #endif
